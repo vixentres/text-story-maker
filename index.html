@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Generador Textos Stories PRO</title>
+    <!-- Google Fonts for premium UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-panel: #18181b;
+            --bg-input: #27272a;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --border-color: #27272a;
+            --success: #10b981;
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Fuerza un contenedor en formato vertical tipo celular en cualquier pantalla */
+        body { 
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg-body); 
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 480px; /* Ancho máximo de celular */
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            position: relative;
+            /* Bordes simulados de celular en computadoras */
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Área de Previsualización (Siempre arriba en formato vertical) */
+        .preview-area {
+            flex: 0 0 38vh;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        canvas { 
+            max-width: 100%; 
+            max-height: 100%; 
+            display: block; 
+            margin: 0 auto;
+            /* Patrón cuadriculado transparente premium */
+            background-image: 
+                linear-gradient(45deg, #1d1d20 25%, transparent 25%), 
+                linear-gradient(-45deg, #1d1d20 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1d1d20 75%), 
+                linear-gradient(-45deg, transparent 75%, #1d1d20 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+            background-color: #121214;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            transition: transform 0.2s ease;
+        }
+
+        /* Panel de Controles (Abajo del canvas) */
+        .controles-panel { 
+            flex: 1;
+            background: var(--bg-panel); 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Navegación por pestañas */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+            background: var(--bg-panel);
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        /* Contenido de pestañas (Scroll independiente) */
+        .tab-content {
+            padding: 15px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Grupos de Formulario */
+        .group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            width: 100%; 
+        }
+        
+        .row-group { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            width: 100%; 
+        }
+
+        label { 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Componentes de entrada */
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            width: 100%;
+            font-size: 15px; 
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        textarea { 
+            height: 75px; 
+            resize: none; 
+        }
+
+        /* Sliders */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+        .slider-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-main);
+            width: 38px;
+            text-align: right;
+        }
+
+        /* Selectores de color premium */
+        .color-picker-wrapper {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        /* Botones de Alineación */
+        .align-buttons {
+            display: flex;
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .align-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .align-btn.active {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Switches */
+        .switch { 
+            position: relative; 
+            display: inline-block; 
+            width: 44px; 
+            height: 22px; 
+            flex-shrink: 0; 
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { 
+            position: absolute; 
+            cursor: pointer; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background-color: var(--bg-input); 
+            transition: .3s; 
+            border-radius: 22px; 
+            border: 1px solid var(--border-color);
+        }
+        .slider:before { 
+            position: absolute; 
+            content: ""; 
+            height: 14px; 
+            width: 14px; 
+            left: 3px; 
+            bottom: 3px; 
+            background-color: var(--text-muted); 
+            transition: .3s; 
+            border-radius: 50%; 
+        }
+        input:checked + .slider { 
+            background: var(--accent-gradient); 
+            border-color: transparent;
+        }
+        input:checked + .slider:before { 
+            transform: translateX(22px); 
+            background-color: white;
+        }
+
+        /* Grilla de Fuentes / Previsualizador */
+        .fonts-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .fonts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            max-height: 100%;
+            padding-right: 2px;
+        }
+
+        .font-card {
+            background: var(--bg-input);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 6px;
+            min-height: 68px;
+        }
+
+        .font-card:hover {
+            border-color: #444;
+            background: #2a2a2e;
+        }
+
+        .font-card.active {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .font-card-name {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .font-card-preview {
+            font-size: 18px;
+            color: var(--text-main);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .file-upload-btn {
+            background: var(--bg-input);
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .file-upload-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+
+        /* Botones de acción principales (Fijos al fondo de controles en móvil) */
+        .actions-panel {
+            padding: 12px 15px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.95;
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: #2f2f33;
+        }
+
+        /* Toast de notificaciones */
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.05);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+        
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        /* Estilos condicionales */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==========================================================================
+           DISEÑO ADAPTATIVO (MEDIA QUERIES)
+           ========================================================================== */
+
+        /* Pantalla muy corta (Teclado móvil abierto, modo landscape corto) */
+        @media (max-height: 550px) {
+            body {
+                height: auto;
+                overflow: auto;
+            }
+            .app-container {
+                height: auto;
+                width: 100%;
+            }
+            .preview-area {
+                flex: 0 0 auto;
+                height: 240px;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .controles-panel {
+                flex: 0 0 auto;
+                overflow: visible;
+                height: auto;
+            }
+            .tab-content {
+                flex: 0 0 auto;
+                overflow: visible;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Previsualizador del Lienzo (Siempre Arriba en móvil/celular) -->
+        <div class="preview-area">
+            <canvas id="miCanvas"></canvas>
+        </div>
+
+        <!-- Panel de Controles (Abajo en formato vertical) -->
+        <div class="controles-panel">
+            
+            <!-- Pestañas -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-texto')">📝 Texto</button>
+                <button class="tab-btn" onclick="switchTab('tab-estilo')">🎨 Estilo</button>
+                <button class="tab-btn" onclick="switchTab('tab-fuentes')">🔤 Fuentes</button>
+            </div>
+
+            <!-- Contenido Pestaña 1: Texto -->
+            <div id="tab-texto" class="tab-content active">
+                <div class="group">
+                    <label>Escribe tu Texto</label>
+                    <textarea id="textoInput" placeholder="Ej: Hola Instagram&#10;Este es un collage"></textarea>
+                </div>
+
+                <div class="row-group">
+                    <div class="group" style="flex: 1;">
+                        <label>Tamaño de Letra</label>
+                        <div class="slider-container">
+                            <input type="range" id="fontSizeInput" min="20" max="250" value="80">
+                            <span class="slider-value" id="fontSizeVal">80px</span>
+                        </div>
+                    </div>
+                    <div class="group" style="width: auto;">
+                        <label>Color Texto</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="colorInput" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label>Alineación</label>
+                    <div class="align-buttons">
+                        <button class="align-btn" onclick="setAlign('left')" id="align-left">Izquierda</button>
+                        <button class="align-btn active" onclick="setAlign('center')" id="align-center">Centro</button>
+                        <button class="align-btn" onclick="setAlign('right')" id="align-right">Derecha</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido Pestaña 2: Estilo -->
+            <div id="tab-estilo" class="tab-content">
+                <div class="group">
+                    <label>Tipo de Lienzo (Formato)</label>
+                    <select id="layoutModeInput">
+                        <option value="auto" selected>Ajuste Automático (Collage PNG)</option>
+                        <option value="story">Historia Vertical (9:16)</option>
+                    </select>
+                </div>
+
+                <!-- Opciones de Historia Vertical -->
+                <div id="opcionesHistoria" class="hidden">
+                    <div class="row-group">
+                        <div class="group" style="flex: 1;">
+                            <label>Posición Vertical</label>
+                            <select id="posicionInput">
+                                <option value="top">Superior (Zona Segura)</option>
+                                <option value="center" selected>Centro</option>
+                                <option value="bottom">Inferior (Zona Segura)</option>
+                            </select>
+                        </div>
+                        <div class="group" style="align-items: center; width: auto; flex-direction: row; gap: 8px; margin-top: 18px;">
+                            <label class="switch">
+                                <input type="checkbox" id="guiasInput" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span style="font-size: 13px; font-weight: 600;">Ver Guías</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de Ajuste Automático -->
+                <div id="opcionesAuto" class="group">
+                    <div class="row-group">
+                        <div class="group" style="flex: 1;">
+                            <label>Margen Horiz. (Padding)</label>
+                            <div class="slider-container">
+                                <input type="range" id="paddingXInput" min="10" max="150" value="40">
+                                <span class="slider-value" id="paddingXVal">40px</span>
+                            </div>
+                        </div>
+                        <div class="group" style="flex: 1;">
+                            <label>Margen Vert. (Padding)</label>
+                            <div class="slider-container">
+                                <input type="range" id="paddingYInput" min="10" max="150" value="40">
+                                <span class="slider-value" id="paddingYVal">40px</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="group">
+                        <label>Ancho Máximo del Texto</label>
+                        <div class="slider-container">
+                            <input type="range" id="maxWidthInput" min="200" max="1200" value="800">
+                            <span class="slider-value" id="maxWidthVal">800px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label>Interlineado (Separación)</label>
+                    <div class="slider-container">
+                        <input type="range" id="lineSpacingInput" min="0.8" max="2.5" step="0.1" value="1.2">
+                        <span class="slider-value" id="lineSpacingVal">1.2x</span>
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+
+                <!-- Contorno -->
+                <div class="row-group" style="justify-content: space-between;">
+                    <span style="font-size: 14px; font-weight: 600;">Activar Contorno de Texto</span>
+                    <label class="switch">
+                        <input type="checkbox" id="contornoInput">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="opcionesContorno" class="hidden">
+                    <div class="row-group">
+                        <div class="group" style="flex: 1;">
+                            <label>Grosor del Contorno</label>
+                            <div class="slider-container">
+                                <input type="range" id="anchoContornoInput" min="1" max="30" value="8">
+                                <span class="slider-value" id="anchoContornoVal">8px</span>
+                            </div>
+                        </div>
+                        <div class="group" style="width: auto;">
+                            <label>Color</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="colorContornoInput" value="#000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido Pestaña 3: Fuentes -->
+            <div id="tab-fuentes" class="tab-content">
+                <div class="fonts-section">
+                    <label>Fuentes Disponibles</label>
+                    
+                    <!-- Grilla de Fuentes -->
+                    <div class="fonts-grid" id="fontsGrid">
+                        <!-- Estático / Carga por defecto si no hay servidor -->
+                        <div class="font-card active" onclick="selectFont('sans-serif')" id="card-sans-serif">
+                            <span class="font-card-name">Sistema (Sans-Serif)</span>
+                            <span class="font-card-preview" style="font-family: sans-serif;">Abc</span>
+                        </div>
+                    </div>
+
+                    <div class="group" style="margin-top: 10px;">
+                        <label>Subir Nueva Fuente Temporal</label>
+                        <label class="file-upload-btn" for="fontInput">
+                            📁 Seleccionar archivo .ttf o .otf
+                            <input type="file" id="fontInput" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="actions-panel">
+                <button class="btn btn-primary" onclick="guardarEnServidor()" id="btnSaveServer">
+                    💾 Guardar en Servidor (Ordenador)
+                </button>
+                <button class="btn btn-secondary" onclick="descargarPNG()">
+                    📥 Descargar PNG (Móvil)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="notificationToast" class="toast">
+        <span id="toastText">Imagen guardada</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('miCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Estado global del editor
+        let editorState = {
+            text: 'Texto de prueba',
+            fontSize: 80,
+            textColor: '#ffffff',
+            align: 'center',
+            layoutMode: 'auto', // 'auto' o 'story'
+            posicionStory: 'center',
+            mostrarGuias: true,
+            paddingX: 40,
+            paddingY: 40,
+            maxWidth: 800,
+            lineSpacing: 1.2,
+            usarContorno: false,
+            anchoContorno: 8,
+            colorContorno: '#000000',
+            activeFont: 'sans-serif'
+        };
+
+        // Lista de fuentes detectadas (servidor + locales agregadas)
+        let loadedFonts = new Map();
+
+        // Inicialización
+        window.addEventListener('DOMContentLoaded', () => {
+            // Vincular eventos de inputs
+            vincularInputs();
+            // Cargar lista de fuentes del servidor
+            cargarFuentesServidor();
+            
+            // Valor inicial del textarea
+            document.getElementById('textoInput').value = "Texto Collage\nPNG Transparente";
+            actualizarDesdeInputs();
+        });
+
+        function vincularInputs() {
+            // Escuchar cambios
+            document.getElementById('textoInput').addEventListener('input', updateText);
+            document.getElementById('fontSizeInput').addEventListener('input', (e) => {
+                editorState.fontSize = parseInt(e.target.value);
+                document.getElementById('fontSizeVal').innerText = editorState.fontSize + 'px';
+                actualizarCanvas();
+            });
+            document.getElementById('colorInput').addEventListener('input', (e) => {
+                editorState.textColor = e.target.value;
+                actualizarCanvas();
+            });
+            
+            document.getElementById('layoutModeInput').addEventListener('change', (e) => {
+                editorState.layoutMode = e.target.value;
+                if (editorState.layoutMode === 'story') {
+                    document.getElementById('opcionesHistoria').classList.remove('hidden');
+                    document.getElementById('opcionesAuto').classList.add('hidden');
+                } else {
+                    document.getElementById('opcionesHistoria').classList.add('hidden');
+                    document.getElementById('opcionesAuto').classList.remove('hidden');
+                }
+                actualizarCanvas();
+            });
+
+            document.getElementById('posicionInput').addEventListener('change', (e) => {
+                editorState.posicionStory = e.target.value;
+                actualizarCanvas();
+            });
+
+            document.getElementById('guiasInput').addEventListener('change', (e) => {
+                editorState.mostrarGuias = e.target.checked;
+                actualizarCanvas();
+            });
+
+            document.getElementById('paddingXInput').addEventListener('input', (e) => {
+                editorState.paddingX = parseInt(e.target.value);
+                document.getElementById('paddingXVal').innerText = editorState.paddingX + 'px';
+                actualizarCanvas();
+            });
+
+            document.getElementById('paddingYInput').addEventListener('input', (e) => {
+                editorState.paddingY = parseInt(e.target.value);
+                document.getElementById('paddingYVal').innerText = editorState.paddingY + 'px';
+                actualizarCanvas();
+            });
+
+            document.getElementById('maxWidthInput').addEventListener('input', (e) => {
+                editorState.maxWidth = parseInt(e.target.value);
+                document.getElementById('maxWidthVal').innerText = editorState.maxWidth + 'px';
+                actualizarCanvas();
+            });
+
+            document.getElementById('lineSpacingInput').addEventListener('input', (e) => {
+                editorState.lineSpacing = parseFloat(e.target.value);
+                document.getElementById('lineSpacingVal').innerText = editorState.lineSpacing + 'x';
+                actualizarCanvas();
+            });
+
+            document.getElementById('contornoInput').addEventListener('change', (e) => {
+                editorState.usarContorno = e.target.checked;
+                if (editorState.usarContorno) {
+                    document.getElementById('opcionesContorno').classList.remove('hidden');
+                } else {
+                    document.getElementById('opcionesContorno').classList.add('hidden');
+                }
+                actualizarCanvas();
+            });
+
+            document.getElementById('anchoContornoInput').addEventListener('input', (e) => {
+                editorState.anchoContorno = parseInt(e.target.value);
+                document.getElementById('anchoContornoVal').innerText = editorState.anchoContorno + 'px';
+                actualizarCanvas();
+            });
+
+            document.getElementById('colorContornoInput').addEventListener('input', (e) => {
+                editorState.colorContorno = e.target.value;
+                actualizarCanvas();
+            });
+
+            // Input de archivo local de fuente
+            document.getElementById('fontInput').addEventListener('change', cargarFuenteLocal);
+        }
+
+        function updateText(e) {
+            editorState.text = e.target.value;
+            actualizarCanvas();
+        }
+
+        function setAlign(align) {
+            editorState.align = align;
+            document.querySelectorAll('.align-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`align-${align}`).classList.add('active');
+            actualizarCanvas();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Activar botón pulsado buscando por el onclick
+            const clickedBtn = Array.from(document.querySelectorAll('.tab-btn'))
+                .find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (clickedBtn) clickedBtn.classList.add('active');
+            
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function actualizarDesdeInputs() {
+            editorState.text = document.getElementById('textoInput').value;
+            editorState.fontSize = parseInt(document.getElementById('fontSizeInput').value);
+            editorState.textColor = document.getElementById('colorInput').value;
+            editorState.layoutMode = document.getElementById('layoutModeInput').value;
+            editorState.posicionStory = document.getElementById('posicionInput').value;
+            editorState.mostrarGuias = document.getElementById('guiasInput').checked;
+            editorState.paddingX = parseInt(document.getElementById('paddingXInput').value);
+            editorState.paddingY = parseInt(document.getElementById('paddingYInput').value);
+            editorState.maxWidth = parseInt(document.getElementById('maxWidthInput').value);
+            editorState.lineSpacing = parseFloat(document.getElementById('lineSpacingInput').value);
+            editorState.usarContorno = document.getElementById('contornoInput').checked;
+            editorState.anchoContorno = parseInt(document.getElementById('anchoContornoInput').value);
+            editorState.colorContorno = document.getElementById('colorContornoInput').value;
+            
+            actualizarCanvas();
+        }
+
+        // --- MANEJO DE FUENTES ---
+
+        // Fuentes predeterminadas que siempre están en la carpeta de fuentes del usuario
+        const FUENTES_PREDEFINIDAS = [
+            { name: "Authority Regular", filename: "authority-regular-iF670150cce3bf9.ttf" },
+            { name: "Authority Rounded", filename: "Authority-Rounded-iF670150ccf296e.ttf" },
+            { name: "Authority Rounded Italic", filename: "Authority-RoundedItalic-iF670150cd11171.ttf" },
+            { name: "Authority Italic", filename: "Authority-Italic-iF670150ccd1ca7.ttf" },
+            { name: "Authority Distressed", filename: "Authority-Distressed-iF670150cb7a9ae.ttf" },
+            { name: "Authority Distressed Italic", filename: "Authority-DistressedItalic-iF670150cc2de33.ttf" }
+        ];
+
+        async function cargarFuentesServidor() {
+            try {
+                const response = await fetch('/api/fonts');
+                const data = await response.json();
+                
+                let fuentes = data.fonts || [];
+                
+                // Si la lista del servidor está vacía, usar las predefinidas
+                if (fuentes.length === 0) {
+                    fuentes = FUENTES_PREDEFINIDAS;
+                }
+                
+                // Cargar cada fuente en la interfaz
+                for (let f of fuentes) {
+                    await registrarFuente(f.name, `/fonts/${f.filename}`);
+                }
+                
+                // Renderizar la grilla de selección
+                renderizarFuentesGrid(fuentes);
+            } catch (err) {
+                console.warn('Backend offline o ejecutándose localmente. Cargando fuentes predefinidas directamente.');
+                
+                // Intentar cargar fuentes predefinidas asumiendo ruta relativa
+                for (let f of FUENTES_PREDEFINIDAS) {
+                    try {
+                        await registrarFuente(f.name, `./authority-font-family/${f.filename}`);
+                    } catch (e) {
+                        console.error('No se pudo cargar la fuente estática:', f.name, e);
+                    }
+                }
+                
+                renderizarFuentesGrid(FUENTES_PREDEFINIDAS);
+                // Ocultar botón de guardado en servidor ya que no está disponible
+                document.getElementById('btnSaveServer').classList.add('hidden');
+            }
+        }
+
+        async function registrarFuente(name, url) {
+            if (loadedFonts.has(name)) return;
+            try {
+                const fontFace = new FontFace(name, `url(${url})`);
+                const loaded = await fontFace.load();
+                document.fonts.add(loaded);
+                loadedFonts.set(name, true);
+                console.log(`Fuente cargada: ${name}`);
+            } catch (e) {
+                console.error(`Error cargando fuente ${name} desde ${url}:`, e);
+            }
+        }
+
+        function renderizarFuentesGrid(fuentes) {
+            const grid = document.getElementById('fontsGrid');
+            
+            // Limpiar exceptuando la por defecto
+            grid.innerHTML = `
+                <div class="font-card ${editorState.activeFont === 'sans-serif' ? 'active' : ''}" onclick="selectFont('sans-serif')" id="card-sans-serif">
+                    <span class="font-card-name">Sistema (Sans-Serif)</span>
+                    <span class="font-card-preview" style="font-family: sans-serif;">Abc</span>
+                </div>
+            `;
+            
+            fuentes.forEach(f => {
+                const card = document.createElement('div');
+                card.className = `font-card ${editorState.activeFont === f.name ? 'active' : ''}`;
+                card.id = `card-${f.name.replace(/\s+/g, '-')}`;
+                card.onclick = () => selectFont(f.name);
+                
+                card.innerHTML = `
+                    <span class="font-card-name">${f.name}</span>
+                    <span class="font-card-preview" style="font-family: '${f.name}';">Abc</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectFont(fontName) {
+            editorState.activeFont = fontName;
+            document.querySelectorAll('.font-card').forEach(card => card.classList.remove('active'));
+            
+            const cardId = `card-${fontName.replace(/\s+/g, '-')}`;
+            const activeCard = document.getElementById(cardId);
+            if (activeCard) activeCard.classList.add('active');
+            
+            actualizarCanvas();
+        }
+
+        function cargarFuenteLocal(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const fontData = event.target.result;
+                    const fontName = 'Subida_' + Date.now();
+                    const newFont = new FontFace(fontName, fontData);
+                    
+                    newFont.load().then(function(loadedFont) {
+                        document.fonts.add(loadedFont);
+                        loadedFonts.set(fontName, true);
+                        
+                        // Añadir a la interfaz temporalmente
+                        const grid = document.getElementById('fontsGrid');
+                        const card = document.createElement('div');
+                        card.className = 'font-card';
+                        card.id = `card-${fontName}`;
+                        card.onclick = () => selectFont(fontName);
+                        card.innerHTML = `
+                            <span class="font-card-name">Local (${file.name})</span>
+                            <span class="font-card-preview" style="font-family: '${fontName}';">Abc</span>
+                        `;
+                        grid.insertBefore(card, grid.firstChild);
+                        
+                        // Auto-seleccionar
+                        selectFont(fontName);
+                        showToast("Fuente cargada y seleccionada!");
+                    }).catch(err => {
+                        showToast("Archivo de fuente corrupto o inválido", "error");
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // --- RENDERIZADO DEL CANVAS ---
+
+        // Divide el texto en líneas respetando saltos de línea y envolviendo si supera el maxWidth
+        function fragmentarTexto(texto, maxWidth) {
+            const parrafos = texto.split('\n');
+            const lineasFinales = [];
+            
+            parrafos.forEach(parrafo => {
+                if (parrafo.trim() === '') {
+                    lineasFinales.push('');
+                    return;
+                }
+                const palabras = parrafo.split(' ');
+                let lineaActual = palabras[0];
+                
+                for (let i = 1; i < palabras.length; i++) {
+                    const palabra = palabras[i];
+                    const width = ctx.measureText(lineaActual + " " + palabra).width;
+                    if (width < maxWidth) {
+                        lineaActual += " " + palabra;
+                    } else {
+                        lineasFinales.push(lineaActual);
+                        lineaActual = palabra;
+                    }
+                }
+                lineasFinales.push(lineaActual);
+            });
+            
+            return lineasFinales;
+        }
+
+        function actualizarCanvas() {
+            // Aplicar la fuente primero en un contexto invisible para poder medir correctamente
+            ctx.font = `${editorState.fontSize}px "${editorState.activeFont}"`;
+            
+            const texto = editorState.text;
+            if (!texto) {
+                // Canvas vacío si no hay texto
+                canvas.width = 300;
+                canvas.height = 100;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            const strokeOffset = editorState.usarContorno ? editorState.anchoContorno : 0;
+            const lineHeight = editorState.fontSize * editorState.lineSpacing;
+            
+            let lines = [];
+            
+            if (editorState.layoutMode === 'auto') {
+                // --- MODO AUTO-AJUSTE ---
+                lines = fragmentarTexto(texto, editorState.maxWidth);
+                
+                // Medir el ancho del párrafo (la línea más ancha)
+                let maxLineWidth = 0;
+                lines.forEach(line => {
+                    const w = ctx.measureText(line).width;
+                    if (w > maxLineWidth) maxLineWidth = w;
+                });
+                
+                // Dimensionar canvas
+                canvas.width = Math.ceil(maxLineWidth + (editorState.paddingX * 2) + (strokeOffset * 2));
+                canvas.height = Math.ceil((lines.length * lineHeight) - (lineHeight - editorState.fontSize) + (editorState.paddingY * 2) + (strokeOffset * 2));
+                
+            } else {
+                // --- MODO HISTORIA 9:16 ---
+                canvas.width = 1080;
+                canvas.height = 1920;
+                // Envoltorio de texto ajustado al ancho de historia - márgenes
+                lines = fragmentarTexto(texto, 1080 - 120);
+            }
+
+            // Limpiar lienzo
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar Guías en modo Historia 9:16
+            if (editorState.layoutMode === 'story' && editorState.mostrarGuias) {
+                // Zonas no seguras en rojo translúcido
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+                ctx.fillRect(0, 0, 1080, 250); // Superior
+                ctx.fillRect(0, 1920 - 340, 1080, 340); // Inferior
+                
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.06)';
+                ctx.fillRect(0, 250, 50, 1920 - 250 - 340); // Lateral izq
+                ctx.fillRect(1080 - 50, 250, 50, 1920 - 250 - 340); // Lateral der
+            }
+
+            // Configurar estilos de dibujo del texto
+            ctx.font = `${editorState.fontSize}px "${editorState.activeFont}"`;
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = editorState.textColor;
+            
+            if (editorState.usarContorno) {
+                ctx.strokeStyle = editorState.colorContorno;
+                ctx.lineWidth = editorState.anchoContorno * 2;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+            }
+
+            // Calcular origen Y de dibujado
+            let startY;
+            const totalTextHeight = (lines.length * lineHeight) - (lineHeight - editorState.fontSize);
+            
+            if (editorState.layoutMode === 'auto') {
+                startY = editorState.paddingY + strokeOffset;
+            } else {
+                // En modo historia calculamos según la posición elegida
+                if (editorState.posicionStory === 'top') {
+                    startY = 250 + 40; // Justo debajo de zona no segura superior
+                } else if (editorState.posicionStory === 'center') {
+                    startY = (1920 / 2) - (totalTextHeight / 2);
+                } else {
+                    startY = (1920 - 340) - totalTextHeight - 40; // Justo arriba de la zona no segura inferior
+                }
+            }
+
+            // Dibujar cada línea
+            lines.forEach((line, index) => {
+                let x;
+                const currentY = startY + (index * lineHeight);
+                
+                // Determinar X e inclinación según la alineación
+                if (editorState.align === 'center') {
+                    x = canvas.width / 2;
+                    ctx.textAlign = 'center';
+                } else if (editorState.align === 'left') {
+                    x = editorState.layoutMode === 'auto' ? (editorState.paddingX + strokeOffset) : 60;
+                    ctx.textAlign = 'left';
+                } else { // right
+                    x = editorState.layoutMode === 'auto' ? (canvas.width - editorState.paddingX - strokeOffset) : (1080 - 60);
+                    ctx.textAlign = 'right';
+                }
+
+                // Renderizar contorno primero para que no tape el relleno
+                if (editorState.usarContorno && line.trim() !== '') {
+                    ctx.strokeText(line, x, currentY);
+                }
+                
+                // Renderizar relleno del texto
+                if (line.trim() !== '') {
+                    ctx.fillText(line, x, currentY);
+                }
+            });
+        }
+
+        // --- ENVIAR AL SERVIDOR / DESCARGAR ---
+
+        function descargarPNG() {
+            // Desactivar temporalmente guías de historia para exportar limpia
+            const guiasEstabanActivas = editorState.mostrarGuias;
+            if (guiasEstabanActivas) {
+                editorState.mostrarGuias = false;
+                actualizarCanvas();
+            }
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            const link = document.createElement('a');
+            link.download = 'collage-texto-' + Date.now() + '.png';
+            link.href = dataUrl;
+            link.click();
+
+            // Restaurar guías
+            if (guiasEstabanActivas) {
+                editorState.mostrarGuias = true;
+                actualizarCanvas();
+            }
+            
+            showToast("Imagen descargada con éxito");
+        }
+
+        async function guardarEnServidor() {
+            // Desactivar temporalmente guías de historia para exportar limpia
+            const guiasEstabanActivas = editorState.mostrarGuias;
+            if (guiasEstabanActivas) {
+                editorState.mostrarGuias = false;
+                actualizarCanvas();
+            }
+
+            const dataUrl = canvas.toDataURL('image/png');
+
+            // Restaurar guías inmediatamente
+            if (guiasEstabanActivas) {
+                editorState.mostrarGuias = true;
+                actualizarCanvas();
+            }
+
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataUrl })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(`¡Guardado en renders/${result.filename}!`);
+                } else {
+                    showToast(`Error: ${result.error}`, "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("No se pudo conectar con el servidor", "error");
+            }
+        }
+
+        // --- UTILERÍAS DE INTERFAZ ---
+
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('notificationToast');
+            const toastText = document.getElementById('toastText');
+            
+            toast.className = `toast show ${type}`;
+            toastText.innerText = message;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
