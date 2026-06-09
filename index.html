@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Generador Textos Stories PRO</title>
-    <!-- Google Fonts for premium UI -->
+    <!-- Google Fonts for premium UI and text rendering -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Lilita+One&family=Montserrat:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Oswald:wght@400;700&family=Righteous&family=Rubik+Dirt&family=Rubik+Glitch&family=Rubik:ital,wght@0,400;0,700;1,400;1,700&family=Special+Elite&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-body: #09090b;
@@ -328,30 +328,39 @@
         .fonts-section {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .fonts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 8px;
-            max-height: 100%;
+            max-height: 220px;
+            overflow-y: auto;
             padding-right: 2px;
+        }
+        
+        .fonts-grid::-webkit-scrollbar {
+            width: 5px;
+        }
+        .fonts-grid::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
         }
 
         .font-card {
             background: var(--bg-input);
             border: 2px solid transparent;
             border-radius: 10px;
-            padding: 10px;
+            padding: 8px 10px;
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: left;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 6px;
-            min-height: 68px;
+            gap: 4px;
+            min-height: 64px;
         }
 
         .font-card:hover {
@@ -367,7 +376,7 @@
         .font-card-name {
             font-size: 10px;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -379,6 +388,55 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        
+        .font-card-category {
+            font-size: 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Variantes en forma de Pills */
+        .variant-pills-container {
+            background: rgba(0,0,0,0.15);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .variant-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .variant-pill {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .variant-pill:hover {
+            border-color: #555;
+            color: var(--text-main);
+        }
+        
+        .variant-pill.active {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
         .file-upload-btn {
@@ -671,21 +729,25 @@
             <!-- Contenido Pestaña 3: Fuentes -->
             <div id="tab-fuentes" class="tab-content">
                 <div class="fonts-section">
-                    <label>Fuentes Disponibles</label>
+                    <label>1. Selecciona la Familia</label>
                     
-                    <!-- Grilla de Fuentes -->
-                    <div class="fonts-grid" id="fontsGrid">
-                        <!-- Estático / Carga por defecto si no hay servidor -->
-                        <div class="font-card active" onclick="selectFont('sans-serif')" id="card-sans-serif">
-                            <span class="font-card-name">Sistema (Sans-Serif)</span>
-                            <span class="font-card-preview" style="font-family: sans-serif;">Abc</span>
+                    <!-- Grilla de Familias -->
+                    <div class="fonts-grid" id="familiesGrid">
+                        <!-- Se generará dinámicamente -->
+                    </div>
+
+                    <!-- Panel de Variantes -->
+                    <div class="variant-pills-container" id="variantsContainer">
+                        <label>2. Elige la Variante</label>
+                        <div class="variant-pills" id="variantsGrid">
+                            <!-- Se generará dinámicamente -->
                         </div>
                     </div>
 
-                    <div class="group" style="margin-top: 10px;">
-                        <label>Subir Nueva Fuente Temporal</label>
+                    <div class="group" style="margin-top: 5px;">
+                        <label>Subir tu propia Fuente (.ttf/.otf)</label>
                         <label class="file-upload-btn" for="fontInput">
-                            📁 Seleccionar archivo .ttf o .otf
+                            📁 Seleccionar archivo local
                             <input type="file" id="fontInput" style="display: none;">
                         </label>
                     </div>
@@ -729,18 +791,136 @@
             usarContorno: false,
             anchoContorno: 8,
             colorContorno: '#000000',
-            activeFont: 'sans-serif'
+            
+            // Atributos de fuente actual
+            fontFamily: 'Authority Regular',
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            activeFamilyIndex: 0,
+            activeVariantIndex: 0
         };
 
-        // Lista de fuentes detectadas (servidor + locales agregadas)
+        // Rastrear fuentes cargadas dinámicamente
         let loadedFonts = new Map();
 
+        // 1. Catálogo Completo de Familias y Variantes (Locales + Google Fonts similares a la vintage/retro/rounded Authority)
+        const FAMILIAS_FUENTES = [
+            {
+                name: "Authority",
+                category: "Vintage / Retro",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "Authority Regular", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/authority-regular-iF670150cce3bf9.ttf" },
+                    { name: "Italic", fontFamily: "Authority Italic", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-Italic-iF670150ccd1ca7.ttf" },
+                    { name: "Rounded", fontFamily: "Authority Rounded", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-Rounded-iF670150ccf296e.ttf" },
+                    { name: "Rounded Italic", fontFamily: "Authority Rounded Italic", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-RoundedItalic-iF670150cd11171.ttf" },
+                    { name: "Distressed", fontFamily: "Authority Distressed", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-Distressed-iF670150cb7a9ae.ttf" },
+                    { name: "Distressed Italic", fontFamily: "Authority Distressed Italic", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-DistressedItalic-iF670150cc2de33.ttf" }
+                ]
+            },
+            {
+                name: "Lilita One",
+                category: "Redondeada Retro",
+                defaultVariant: "Rounded Bold",
+                variants: [
+                    { name: "Rounded Bold", fontFamily: "Lilita One", fontWeight: "normal", fontStyle: "normal" }
+                ]
+            },
+            {
+                name: "Montserrat",
+                category: "Moderna Sans",
+                defaultVariant: "Black",
+                variants: [
+                    { name: "Regular", fontFamily: "Montserrat", fontWeight: "400", fontStyle: "normal" },
+                    { name: "Italic", fontFamily: "Montserrat", fontWeight: "400", fontStyle: "italic" },
+                    { name: "Bold", fontFamily: "Montserrat", fontWeight: "700", fontStyle: "normal" },
+                    { name: "Bold Italic", fontFamily: "Montserrat", fontWeight: "700", fontStyle: "italic" },
+                    { name: "Black", fontFamily: "Montserrat", fontWeight: "900", fontStyle: "normal" },
+                    { name: "Black Italic", fontFamily: "Montserrat", fontWeight: "900", fontStyle: "italic" }
+                ]
+            },
+            {
+                name: "Bebas Neue",
+                category: "Display Condensada",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "Bebas Neue", fontWeight: "normal", fontStyle: "normal" }
+                ]
+            },
+            {
+                name: "Rubik",
+                category: "Sucia / Glitch / Bold",
+                defaultVariant: "Dirt (Sucia)",
+                variants: [
+                    { name: "Regular", fontFamily: "Rubik", fontWeight: "400", fontStyle: "normal" },
+                    { name: "Bold Italic", fontFamily: "Rubik", fontWeight: "700", fontStyle: "italic" },
+                    { name: "Dirt (Sucia)", fontFamily: "Rubik Dirt", fontWeight: "normal", fontStyle: "normal" },
+                    { name: "Glitch (Retro)", fontFamily: "Rubik Glitch", fontWeight: "normal", fontStyle: "normal" }
+                ]
+            },
+            {
+                name: "Righteous",
+                category: "Vintage Geométrica",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "Righteous", fontWeight: "normal", fontStyle: "normal" }
+                ]
+            },
+            {
+                name: "Special Elite",
+                category: "Máquina Escribir",
+                defaultVariant: "Vintage Type",
+                variants: [
+                    { name: "Vintage Type", fontFamily: "Special Elite", fontWeight: "normal", fontStyle: "normal" }
+                ]
+            },
+            {
+                name: "Oswald",
+                category: "Display Recta",
+                defaultVariant: "Bold",
+                variants: [
+                    { name: "Regular", fontFamily: "Oswald", fontWeight: "400", fontStyle: "normal" },
+                    { name: "Bold", fontFamily: "Oswald", fontWeight: "700", fontStyle: "normal" }
+                ]
+            },
+            {
+                name: "Anton",
+                category: "Poster Impact",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "Anton", fontWeight: "normal", fontStyle: "normal" }
+                ]
+            }
+        ];
+
+        // Lista de archivos del servidor (para evitar duplicar los de Authority predefinidos)
+        const FUENTES_PREDEFINIDAS = [
+            { name: "Authority Regular", filename: "authority-regular-iF670150cce3bf9.ttf" },
+            { name: "Authority Rounded", filename: "Authority-Rounded-iF670150ccf296e.ttf" },
+            { name: "Authority Rounded Italic", filename: "Authority-RoundedItalic-iF670150cd11171.ttf" },
+            { name: "Authority Italic", filename: "Authority-Italic-iF670150ccd1ca7.ttf" },
+            { name: "Authority Distressed", filename: "Authority-Distressed-iF670150cb7a9ae.ttf" },
+            { name: "Authority Distressed Italic", filename: "Authority-DistressedItalic-iF670150cc2de33.ttf" }
+        ];
+
         // Inicialización
-        window.addEventListener('DOMContentLoaded', () => {
-            // Vincular eventos de inputs
+        window.addEventListener('DOMContentLoaded', async () => {
             vincularInputs();
-            // Cargar lista de fuentes del servidor
-            cargarFuentesServidor();
+            
+            // Cargar por defecto todas las variantes de Authority locales para inicio rápido
+            const authorityVariants = FAMILIAS_FUENTES[0].variants;
+            for (let variant of authorityVariants) {
+                await registrarFuente(variant.fontFamily, variant.url);
+            }
+            
+            // Intentar leer más fuentes si corre con servidor local
+            await cargarFuentesServidor();
+            
+            // Generar grillas UI
+            renderizarFamiliasGrid();
+            
+            // Configurar selección por defecto (Authority Regular)
+            seleccionarFamilia(0);
             
             // Valor inicial del textarea
             document.getElementById('textoInput').value = "Texto Collage\nPNG Transparente";
@@ -875,16 +1055,6 @@
 
         // --- MANEJO DE FUENTES ---
 
-        // Fuentes predeterminadas que siempre están en la carpeta de fuentes del usuario
-        const FUENTES_PREDEFINIDAS = [
-            { name: "Authority Regular", filename: "authority-regular-iF670150cce3bf9.ttf" },
-            { name: "Authority Rounded", filename: "Authority-Rounded-iF670150ccf296e.ttf" },
-            { name: "Authority Rounded Italic", filename: "Authority-RoundedItalic-iF670150cd11171.ttf" },
-            { name: "Authority Italic", filename: "Authority-Italic-iF670150ccd1ca7.ttf" },
-            { name: "Authority Distressed", filename: "Authority-Distressed-iF670150cb7a9ae.ttf" },
-            { name: "Authority Distressed Italic", filename: "Authority-DistressedItalic-iF670150cc2de33.ttf" }
-        ];
-
         async function cargarFuentesServidor() {
             try {
                 const response = await fetch('/api/fonts');
@@ -892,32 +1062,27 @@
                 
                 let fuentes = data.fonts || [];
                 
-                // Si la lista del servidor está vacía, usar las predefinidas
-                if (fuentes.length === 0) {
-                    fuentes = FUENTES_PREDEFINIDAS;
-                }
+                // Filtrar fuentes del servidor que ya son del paquete predefinido "Authority"
+                const nombresPredefinidos = FUENTES_PREDEFINIDAS.map(f => f.filename.toLowerCase());
+                const nuevasFuentes = fuentes.filter(f => !nombresPredefinidos.includes(f.filename.toLowerCase()));
                 
-                // Cargar cada fuente en la interfaz
-                for (let f of fuentes) {
-                    await registrarFuente(f.name, `/fonts/${f.filename}`);
+                // Registrar y agregar cada nueva fuente del servidor como familia única
+                for (let f of nuevasFuentes) {
+                    const fontFamilyName = `Server_${f.name.replace(/\s+/g, '')}`;
+                    await registrarFuente(fontFamilyName, `/fonts/${f.filename}`);
+                    
+                    FAMILIAS_FUENTES.push({
+                        name: f.name,
+                        category: "Servidor local",
+                        defaultVariant: "Regular",
+                        variants: [
+                            { name: "Regular", fontFamily: fontFamilyName, fontWeight: "normal", fontStyle: "normal" }
+                        ]
+                    });
                 }
-                
-                // Renderizar la grilla de selección
-                renderizarFuentesGrid(fuentes);
             } catch (err) {
-                console.warn('Backend offline o ejecutándose localmente. Cargando fuentes predefinidas directamente.');
-                
-                // Intentar cargar fuentes predefinidas asumiendo ruta relativa
-                for (let f of FUENTES_PREDEFINIDAS) {
-                    try {
-                        await registrarFuente(f.name, `./authority-font-family/${f.filename}`);
-                    } catch (e) {
-                        console.error('No se pudo cargar la fuente estática:', f.name, e);
-                    }
-                }
-                
-                renderizarFuentesGrid(FUENTES_PREDEFINIDAS);
-                // Ocultar botón de guardado en servidor ya que no está disponible
+                console.warn('Backend offline o corriendo en GitHub Pages. Catálogo de servidor omitido.');
+                // Ocultar botón "Guardar en Servidor" en GitHub Pages
                 document.getElementById('btnSaveServer').classList.add('hidden');
             }
         }
@@ -935,69 +1100,125 @@
             }
         }
 
-        function renderizarFuentesGrid(fuentes) {
-            const grid = document.getElementById('fontsGrid');
+        // Renderiza las tarjetas de familias de fuentes
+        function renderizarFamiliasGrid() {
+            const grid = document.getElementById('familiesGrid');
+            grid.innerHTML = '';
             
-            // Limpiar exceptuando la por defecto
-            grid.innerHTML = `
-                <div class="font-card ${editorState.activeFont === 'sans-serif' ? 'active' : ''}" onclick="selectFont('sans-serif')" id="card-sans-serif">
-                    <span class="font-card-name">Sistema (Sans-Serif)</span>
-                    <span class="font-card-preview" style="font-family: sans-serif;">Abc</span>
-                </div>
-            `;
-            
-            fuentes.forEach(f => {
+            FAMILIAS_FUENTES.forEach((family, idx) => {
                 const card = document.createElement('div');
-                card.className = `font-card ${editorState.activeFont === f.name ? 'active' : ''}`;
-                card.id = `card-${f.name.replace(/\s+/g, '-')}`;
-                card.onclick = () => selectFont(f.name);
+                card.className = `font-card ${editorState.activeFamilyIndex === idx ? 'active' : ''}`;
+                card.onclick = () => seleccionarFamilia(idx);
+                
+                // Buscar variante predeterminada para el preview
+                const defVar = family.variants.find(v => v.name === family.defaultVariant) || family.variants[0];
+                const previewStyle = `font-family: '${defVar.fontFamily}'; font-weight: ${defVar.fontWeight || 'normal'}; font-style: ${defVar.fontStyle || 'normal'};`;
                 
                 card.innerHTML = `
-                    <span class="font-card-name">${f.name}</span>
-                    <span class="font-card-preview" style="font-family: '${f.name}';">Abc</span>
+                    <div>
+                        <div class="font-card-name">${family.name}</div>
+                        <div class="font-card-category">${family.category}</div>
+                    </div>
+                    <span class="font-card-preview" style="${previewStyle}">Abc</span>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function selectFont(fontName) {
-            editorState.activeFont = fontName;
-            document.querySelectorAll('.font-card').forEach(card => card.classList.remove('active'));
+        // Selecciona una familia e inicializa/renderiza sus variantes
+        function seleccionarFamilia(familyIndex) {
+            editorState.activeFamilyIndex = familyIndex;
             
-            const cardId = `card-${fontName.replace(/\s+/g, '-')}`;
-            const activeCard = document.getElementById(cardId);
-            if (activeCard) activeCard.classList.add('active');
+            // Actualizar tarjetas activas
+            const cards = document.querySelectorAll('#familiesGrid .font-card');
+            cards.forEach((card, idx) => {
+                if (idx === familyIndex) card.classList.add('active');
+                else card.classList.remove('active');
+            });
+            
+            const family = FAMILIAS_FUENTES[familyIndex];
+            
+            // Buscar índice de la variante predeterminada
+            let defaultVarIdx = family.variants.findIndex(v => v.name === family.defaultVariant);
+            if (defaultVarIdx === -1) defaultVarIdx = 0;
+            
+            renderizarVariantesGrid(family.variants, defaultVarIdx);
+            seleccionarVariante(defaultVarIdx);
+        }
+
+        // Renderiza los pills de variantes para la familia seleccionada
+        function renderizarVariantesGrid(variants, selectedIdx) {
+            const grid = document.getElementById('variantsGrid');
+            const container = document.getElementById('variantsContainer');
+            
+            grid.innerHTML = '';
+            
+            // Si la familia tiene una sola variante, ocultamos o simplificamos el selector
+            if (variants.length <= 1) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+
+            variants.forEach((v, idx) => {
+                const pill = document.createElement('button');
+                pill.className = `variant-pill ${idx === selectedIdx ? 'active' : ''}`;
+                pill.innerText = v.name;
+                pill.onclick = () => seleccionarVariante(idx);
+                grid.appendChild(pill);
+            });
+        }
+
+        // Aplica la variante elegida al estado y actualiza el canvas
+        function seleccionarVariante(variantIndex) {
+            editorState.activeVariantIndex = variantIndex;
+            
+            const family = FAMILIAS_FUENTES[editorState.activeFamilyIndex];
+            const variant = family.variants[variantIndex];
+            
+            // Actualizar pills activos
+            const pills = document.querySelectorAll('#variantsGrid .variant-pill');
+            pills.forEach((pill, idx) => {
+                if (idx === variantIndex) pill.classList.add('active');
+                else pill.classList.remove('active');
+            });
+            
+            // Aplicar propiedades de renderizado
+            editorState.fontFamily = variant.fontFamily;
+            editorState.fontWeight = variant.fontWeight || 'normal';
+            editorState.fontStyle = variant.fontStyle || 'normal';
             
             actualizarCanvas();
         }
 
+        // Permite subir una fuente manual y la agrega como nueva familia
         function cargarFuenteLocal(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const fontData = event.target.result;
-                    const fontName = 'Subida_' + Date.now();
-                    const newFont = new FontFace(fontName, fontData);
+                    const customFontFamily = 'Subida_' + Date.now();
+                    const newFont = new FontFace(customFontFamily, fontData);
                     
                     newFont.load().then(function(loadedFont) {
                         document.fonts.add(loadedFont);
-                        loadedFonts.set(fontName, true);
+                        loadedFonts.set(customFontFamily, true);
                         
-                        // Añadir a la interfaz temporalmente
-                        const grid = document.getElementById('fontsGrid');
-                        const card = document.createElement('div');
-                        card.className = 'font-card';
-                        card.id = `card-${fontName}`;
-                        card.onclick = () => selectFont(fontName);
-                        card.innerHTML = `
-                            <span class="font-card-name">Local (${file.name})</span>
-                            <span class="font-card-preview" style="font-family: '${fontName}';">Abc</span>
-                        `;
-                        grid.insertBefore(card, grid.firstChild);
+                        // Añadir al catálogo al inicio
+                        const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, ' ');
+                        FAMILIAS_FUENTES.unshift({
+                            name: cleanName,
+                            category: "Subida manual",
+                            defaultVariant: "Regular",
+                            variants: [
+                                { name: "Regular", fontFamily: customFontFamily, fontWeight: "normal", fontStyle: "normal" }
+                            ]
+                        });
                         
-                        // Auto-seleccionar
-                        selectFont(fontName);
+                        // Refrescar e ir a la nueva familia
+                        renderizarFamiliasGrid();
+                        seleccionarFamilia(0);
                         showToast("Fuente cargada y seleccionada!");
                     }).catch(err => {
                         showToast("Archivo de fuente corrupto o inválido", "error");
@@ -1039,8 +1260,8 @@
         }
 
         function actualizarCanvas() {
-            // Aplicar la fuente primero en un contexto invisible para poder medir correctamente
-            ctx.font = `${editorState.fontSize}px "${editorState.activeFont}"`;
+            // Configurar contexto de medición
+            ctx.font = `${editorState.fontStyle} ${editorState.fontWeight} ${editorState.fontSize}px "${editorState.fontFamily}"`;
             
             const texto = editorState.text;
             if (!texto) {
@@ -1095,7 +1316,7 @@
             }
 
             // Configurar estilos de dibujo del texto
-            ctx.font = `${editorState.fontSize}px "${editorState.activeFont}"`;
+            ctx.font = `${editorState.fontStyle} ${editorState.fontWeight} ${editorState.fontSize}px "${editorState.fontFamily}"`;
             ctx.textBaseline = 'top';
             ctx.fillStyle = editorState.textColor;
             
