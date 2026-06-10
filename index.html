@@ -38,14 +38,14 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-y: auto;
         }
 
         .app-container {
             width: 100vw;
-            height: 100vh;
+            min-height: 100vh;
             max-width: 480px; /* Ancho máximo de celular */
             display: flex;
             flex-direction: column;
@@ -57,18 +57,22 @@
             box-shadow: var(--shadow-lg);
         }
 
-        /* Área de Previsualización (Siempre arriba en formato vertical) */
+        /* Área de Previsualización (Sticky arriba en formato vertical) */
         .preview-area {
-            flex: 0 0 38vh;
+            position: sticky;
+            top: 0;
+            height: 35vh;
+            min-height: 220px;
+            max-height: 280px;
             background: #111;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 12px;
             border-bottom: 1px solid var(--border-color);
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 100;
+            flex-shrink: 0;
         }
 
         canvas { 
@@ -90,13 +94,13 @@
             transition: transform 0.2s ease;
         }
 
-        /* Panel de Controles (Abajo del canvas) */
+        /* Panel de Controles (Abajo del canvas, fluye de forma natural) */
         .controles-panel { 
             flex: 1;
             background: var(--bg-panel); 
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: visible;
             position: relative;
             z-index: 5;
         }
@@ -132,15 +136,12 @@
             border-bottom: 2px solid #3b82f6;
         }
 
-        /* Contenido de pestañas (Scroll independiente) */
+        /* Contenido de pestañas (Flujo vertical) */
         .tab-content {
             padding: 15px;
             display: none;
             flex-direction: column;
             gap: 15px;
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         .tab-content.active {
@@ -560,9 +561,14 @@
                 width: 100%;
             }
             .preview-area {
-                flex: 0 0 auto;
-                height: 240px;
+                position: static !important;
+                height: 220px !important;
+                max-height: 220px !important;
+                min-height: auto !important;
                 border-bottom: 1px solid var(--border-color);
+            }
+            .tabs {
+                position: static !important;
             }
             .controles-panel {
                 flex: 0 0 auto;
