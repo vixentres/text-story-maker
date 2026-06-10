@@ -708,12 +708,12 @@
                 <div class="row-group" style="justify-content: space-between;">
                     <span style="font-size: 14px; font-weight: 600;">Activar Contorno de Texto</span>
                     <label class="switch">
-                        <input type="checkbox" id="contornoInput">
+                        <input type="checkbox" id="contornoInput" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
 
-                <div id="opcionesContorno" class="hidden">
+                <div id="opcionesContorno" class="group">
                     <div class="row-group">
                         <div class="group" style="flex: 1;">
                             <label>Grosor del Contorno</label>
@@ -726,6 +726,42 @@
                             <label>Color</label>
                             <div class="color-picker-wrapper">
                                 <input type="color" id="colorContornoInput" value="#000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+
+                <!-- Sombra -->
+                <div class="row-group" style="justify-content: space-between;">
+                    <span style="font-size: 14px; font-weight: 600;">Activar Sombra de Texto</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sombraInput" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="opcionesSombra" class="group">
+                    <div class="row-group">
+                        <div class="group" style="flex: 1;">
+                            <label>Difuminado (Blur)</label>
+                            <div class="slider-container">
+                                <input type="range" id="anchoSombraInput" min="0" max="30" value="10">
+                                <span class="slider-value" id="anchoSombraVal">10px</span>
+                            </div>
+                        </div>
+                        <div class="group" style="flex: 1;">
+                            <label>Desplazamiento Y</label>
+                            <div class="slider-container">
+                                <input type="range" id="offsetYSombraInput" min="-15" max="30" value="6">
+                                <span class="slider-value" id="offsetYSombraVal">6px</span>
+                            </div>
+                        </div>
+                        <div class="group" style="width: auto;">
+                            <label>Color</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="colorSombraInput" value="#000000">
                             </div>
                         </div>
                     </div>
@@ -794,9 +830,16 @@
             paddingY: 40,
             maxWidth: 800,
             lineSpacing: 1.2,
-            usarContorno: false,
+            usarContorno: true,
             anchoContorno: 8,
             colorContorno: '#000000',
+            
+            // Sombra
+            usarSombra: true,
+            anchoSombra: 10,
+            offsetXSombra: 0,
+            offsetYSombra: 6,
+            colorSombra: '#000000',
             
             // Atributos de fuente actual
             fontFamily: 'Authority Regular',
@@ -1013,6 +1056,34 @@
                 actualizarCanvas();
             });
 
+            // Sombra bindings
+            document.getElementById('sombraInput').addEventListener('change', (e) => {
+                editorState.usarSombra = e.target.checked;
+                if (editorState.usarSombra) {
+                    document.getElementById('opcionesSombra').classList.remove('hidden');
+                } else {
+                    document.getElementById('opcionesSombra').classList.add('hidden');
+                }
+                actualizarCanvas();
+            });
+
+            document.getElementById('anchoSombraInput').addEventListener('input', (e) => {
+                editorState.anchoSombra = parseInt(e.target.value);
+                document.getElementById('anchoSombraVal').innerText = editorState.anchoSombra + 'px';
+                actualizarCanvas();
+            });
+
+            document.getElementById('offsetYSombraInput').addEventListener('input', (e) => {
+                editorState.offsetYSombra = parseInt(e.target.value);
+                document.getElementById('offsetYSombraVal').innerText = editorState.offsetYSombra + 'px';
+                actualizarCanvas();
+            });
+
+            document.getElementById('colorSombraInput').addEventListener('input', (e) => {
+                editorState.colorSombra = e.target.value;
+                actualizarCanvas();
+            });
+
             // Input de archivo local de fuente
             document.getElementById('fontInput').addEventListener('change', cargarFuenteLocal);
         }
@@ -1052,9 +1123,15 @@
             editorState.paddingY = parseInt(document.getElementById('paddingYInput').value);
             editorState.maxWidth = parseInt(document.getElementById('maxWidthInput').value);
             editorState.lineSpacing = parseFloat(document.getElementById('lineSpacingInput').value);
+            
             editorState.usarContorno = document.getElementById('contornoInput').checked;
             editorState.anchoContorno = parseInt(document.getElementById('anchoContornoInput').value);
             editorState.colorContorno = document.getElementById('colorContornoInput').value;
+            
+            editorState.usarSombra = document.getElementById('sombraInput').checked;
+            editorState.anchoSombra = parseInt(document.getElementById('anchoSombraInput').value);
+            editorState.offsetYSombra = parseInt(document.getElementById('offsetYSombraInput').value);
+            editorState.colorSombra = document.getElementById('colorSombraInput').value;
             
             actualizarCanvas();
         }
@@ -1279,6 +1356,9 @@
             }
 
             const strokeOffset = editorState.usarContorno ? editorState.anchoContorno : 0;
+            const shadowOffsetMax = editorState.usarSombra ? (Math.abs(editorState.offsetYSombra) + (editorState.anchoSombra / 1.5)) : 0;
+            const extraOffset = strokeOffset + shadowOffsetMax;
+            
             const lineHeight = editorState.fontSize * editorState.lineSpacing;
             
             let lines = [];
@@ -1294,9 +1374,9 @@
                     if (w > maxLineWidth) maxLineWidth = w;
                 });
                 
-                // Dimensionar canvas
-                canvas.width = Math.ceil(maxLineWidth + (editorState.paddingX * 2) + (strokeOffset * 2));
-                canvas.height = Math.ceil((lines.length * lineHeight) - (lineHeight - editorState.fontSize) + (editorState.paddingY * 2) + (strokeOffset * 2));
+                // Dimensionar canvas con el extraOffset para evitar recortes
+                canvas.width = Math.ceil(maxLineWidth + (editorState.paddingX * 2) + (extraOffset * 2));
+                canvas.height = Math.ceil((lines.length * lineHeight) - (lineHeight - editorState.fontSize) + (editorState.paddingY * 2) + (extraOffset * 2));
                 
             } else {
                 // --- MODO HISTORIA 9:16 ---
@@ -1338,7 +1418,7 @@
             const totalTextHeight = (lines.length * lineHeight) - (lineHeight - editorState.fontSize);
             
             if (editorState.layoutMode === 'auto') {
-                startY = editorState.paddingY + strokeOffset;
+                startY = editorState.paddingY + extraOffset;
             } else {
                 // En modo historia calculamos según la posición elegida
                 if (editorState.posicionStory === 'top') {
@@ -1360,20 +1440,41 @@
                     x = canvas.width / 2;
                     ctx.textAlign = 'center';
                 } else if (editorState.align === 'left') {
-                    x = editorState.layoutMode === 'auto' ? (editorState.paddingX + strokeOffset) : 60;
+                    x = editorState.layoutMode === 'auto' ? (editorState.paddingX + extraOffset) : 60;
                     ctx.textAlign = 'left';
                 } else { // right
-                    x = editorState.layoutMode === 'auto' ? (canvas.width - editorState.paddingX - strokeOffset) : (1080 - 60);
+                    x = editorState.layoutMode === 'auto' ? (canvas.width - editorState.paddingX - extraOffset) : (1080 - 60);
                     ctx.textAlign = 'right';
                 }
 
-                // Renderizar contorno primero para que no tape el relleno
+                // Renderizar paso 1: Con sombra (si está activada)
+                if (editorState.usarSombra) {
+                    ctx.shadowColor = editorState.colorSombra;
+                    ctx.shadowBlur = editorState.anchoSombra;
+                    ctx.shadowOffsetX = editorState.offsetXSombra;
+                    ctx.shadowOffsetY = editorState.offsetYSombra;
+                } else {
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                }
+
                 if (editorState.usarContorno && line.trim() !== '') {
                     ctx.strokeText(line, x, currentY);
+                } else if (line.trim() !== '') {
+                    ctx.fillText(line, x, currentY);
                 }
                 
-                // Renderizar relleno del texto
-                if (line.trim() !== '') {
+                // Renderizar paso 2: Dibujar el relleno nítido por encima (y quitar la sombra)
+                if (editorState.usarSombra) {
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                }
+
+                if (editorState.usarContorno && line.trim() !== '') {
                     ctx.fillText(line, x, currentY);
                 }
             });
