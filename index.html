@@ -581,6 +581,70 @@
                 height: auto;
             }
         }
+
+        /* Selector de Fondo de Previsualización */
+        .preview-bg-group {
+            margin-bottom: 12px;
+        }
+        .preview-bg-selector {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            align-items: center;
+        }
+        .preview-bg-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .preview-bg-btn:hover {
+            transform: scale(1.08);
+        }
+        .preview-bg-btn.active {
+            border-color: #ffffff;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(255,255,255,0.8), inset 0 0 3px rgba(0,0,0,0.5);
+        }
+        .preview-bg-btn.azul { background-color: #0044ff; }
+        .preview-bg-btn.rojo { background-color: #ef4444; }
+        .preview-bg-btn.verde { background-color: #22c55e; }
+        .preview-bg-btn.amarillo { background-color: #eab308; }
+        .preview-bg-btn.transparente {
+            background-image: 
+                linear-gradient(45deg, #bbb 25%, transparent 25%), 
+                linear-gradient(-45deg, #bbb 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #bbb 75%), 
+                linear-gradient(-45deg, transparent 75%, #bbb 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+            background-color: #eee;
+        }
+
+        /* Clases de fondo de Canvas */
+        canvas.bg-azul {
+            background-color: #0044ff !important;
+            background-image: none !important;
+        }
+        canvas.bg-rojo {
+            background-color: #ef4444 !important;
+            background-image: none !important;
+        }
+        canvas.bg-verde {
+            background-color: #22c55e !important;
+            background-image: none !important;
+        }
+        canvas.bg-amarillo {
+            background-color: #eab308 !important;
+            background-image: none !important;
+        }
+        canvas.bg-transparente {
+            /* Patrón heredado original */
+        }
     </style>
 </head>
 <body>
@@ -589,7 +653,7 @@
         
         <!-- Previsualizador del Lienzo (Siempre Arriba en móvil/celular) -->
         <div class="preview-area">
-            <canvas id="miCanvas"></canvas>
+            <canvas id="miCanvas" class="bg-azul"></canvas>
         </div>
 
         <!-- Panel de Controles (Abajo en formato vertical) -->
@@ -635,8 +699,17 @@
                 </div>
             </div>
 
-            <!-- Contenido Pestaña 2: Estilo -->
             <div id="tab-estilo" class="tab-content">
+                <div class="group preview-bg-group">
+                    <label>Fondo de Previsualización (Solo Visual)</label>
+                    <div class="preview-bg-selector">
+                        <button type="button" class="preview-bg-btn azul active" onclick="setCanvasBackground('azul')" title="Azul"></button>
+                        <button type="button" class="preview-bg-btn rojo" onclick="setCanvasBackground('rojo')" title="Rojo"></button>
+                        <button type="button" class="preview-bg-btn verde" onclick="setCanvasBackground('verde')" title="Verde"></button>
+                        <button type="button" class="preview-bg-btn amarillo" onclick="setCanvasBackground('amarillo')" title="Amarillo"></button>
+                        <button type="button" class="preview-bg-btn transparente" onclick="setCanvasBackground('transparente')" title="Cuadrícula Transparente"></button>
+                    </div>
+                </div>
                 <div class="group">
                     <label>Tipo de Lienzo (Formato)</label>
                     <select id="layoutModeInput">
@@ -859,20 +932,12 @@
                 category: "Vintage / Retro",
                 defaultVariant: "Regular",
                 variants: [
-                    { name: "Regular", fontFamily: "Authority Regular", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/authority-regular-iF670150cce3bf9.ttf" },
-                    { name: "Italic", fontFamily: "Authority Italic", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-Italic-iF670150ccd1ca7.ttf" },
-                    { name: "Rounded", fontFamily: "Authority Rounded", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-Rounded-iF670150ccf296e.ttf" },
-                    { name: "Rounded Italic", fontFamily: "Authority Rounded Italic", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-RoundedItalic-iF670150cd11171.ttf" },
-                    { name: "Distressed", fontFamily: "Authority Distressed", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-Distressed-iF670150cb7a9ae.ttf" },
-                    { name: "Distressed Italic", fontFamily: "Authority Distressed Italic", fontWeight: "normal", fontStyle: "normal", url: "./authority-font-family/Authority-DistressedItalic-iF670150cc2de33.ttf" }
-                ]
-            },
-            {
-                name: "Lilita One",
-                category: "Redondeada Retro",
-                defaultVariant: "Rounded Bold",
-                variants: [
-                    { name: "Rounded Bold", fontFamily: "Lilita One", fontWeight: "normal", fontStyle: "normal" }
+                    { name: "Regular", fontFamily: "Authority Regular", fontWeight: "normal", fontStyle: "normal", url: "./fonts/authority-regular-iF670150cce3bf9.ttf" },
+                    { name: "Italic", fontFamily: "Authority Italic", fontWeight: "normal", fontStyle: "normal", url: "./fonts/Authority-Italic-iF670150ccd1ca7.ttf" },
+                    { name: "Rounded", fontFamily: "Authority Rounded", fontWeight: "normal", fontStyle: "normal", url: "./fonts/Authority-Rounded-iF670150ccf296e.ttf" },
+                    { name: "Rounded Italic", fontFamily: "Authority Rounded Italic", fontWeight: "normal", fontStyle: "normal", url: "./fonts/Authority-RoundedItalic-iF670150cd11171.ttf" },
+                    { name: "Distressed", fontFamily: "Authority Distressed", fontWeight: "normal", fontStyle: "normal", url: "./fonts/Authority-Distressed-iF670150cb7a9ae.ttf" },
+                    { name: "Distressed Italic", fontFamily: "Authority Distressed Italic", fontWeight: "normal", fontStyle: "normal", url: "./fonts/Authority-DistressedItalic-iF670150cc2de33.ttf" }
                 ]
             },
             {
@@ -880,12 +945,18 @@
                 category: "Moderna Sans",
                 defaultVariant: "Black",
                 variants: [
-                    { name: "Regular", fontFamily: "Montserrat", fontWeight: "400", fontStyle: "normal" },
-                    { name: "Italic", fontFamily: "Montserrat", fontWeight: "400", fontStyle: "italic" },
-                    { name: "Bold", fontFamily: "Montserrat", fontWeight: "700", fontStyle: "normal" },
-                    { name: "Bold Italic", fontFamily: "Montserrat", fontWeight: "700", fontStyle: "italic" },
-                    { name: "Black", fontFamily: "Montserrat", fontWeight: "900", fontStyle: "normal" },
-                    { name: "Black Italic", fontFamily: "Montserrat", fontWeight: "900", fontStyle: "italic" }
+                    { name: "Regular", fontFamily: "Montserrat Regular", fontWeight: "400", fontStyle: "normal", url: "./fonts/Montserrat-Regular.ttf" },
+                    { name: "Bold", fontFamily: "Montserrat Bold", fontWeight: "700", fontStyle: "normal", url: "./fonts/Montserrat-Bold.ttf" },
+                    { name: "Black", fontFamily: "Montserrat Black", fontWeight: "900", fontStyle: "normal", url: "./fonts/Montserrat-Black.ttf" }
+                ]
+            },
+            {
+                name: "Rubik",
+                category: "Moderna Rounded",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "Rubik Regular", fontWeight: "400", fontStyle: "normal", url: "./fonts/Rubik-Regular.ttf" },
+                    { name: "Bold", fontFamily: "Rubik Bold", fontWeight: "700", fontStyle: "normal", url: "./fonts/Rubik-Bold.ttf" }
                 ]
             },
             {
@@ -893,63 +964,94 @@
                 category: "Display Condensada",
                 defaultVariant: "Regular",
                 variants: [
-                    { name: "Regular", fontFamily: "Bebas Neue", fontWeight: "normal", fontStyle: "normal" }
+                    { name: "Regular", fontFamily: "Bebas Neue", fontWeight: "normal", fontStyle: "normal", url: "./fonts/BebasNeue-Regular.ttf" }
                 ]
             },
             {
-                name: "Rubik",
-                category: "Sucia / Glitch / Bold",
-                defaultVariant: "Dirt (Sucia)",
+                name: "Lilita One",
+                category: "Redondeada Retro",
+                defaultVariant: "Rounded Bold",
                 variants: [
-                    { name: "Regular", fontFamily: "Rubik", fontWeight: "400", fontStyle: "normal" },
-                    { name: "Bold Italic", fontFamily: "Rubik", fontWeight: "700", fontStyle: "italic" },
-                    { name: "Dirt (Sucia)", fontFamily: "Rubik Dirt", fontWeight: "normal", fontStyle: "normal" },
-                    { name: "Glitch (Retro)", fontFamily: "Rubik Glitch", fontWeight: "normal", fontStyle: "normal" }
+                    { name: "Rounded Bold", fontFamily: "Lilita One", fontWeight: "normal", fontStyle: "normal", url: "./fonts/LilitaOne-Regular.ttf" }
                 ]
             },
             {
-                name: "Righteous",
-                category: "Vintage Geométrica",
+                name: "Poppins",
+                category: "Geométrica Sans",
                 defaultVariant: "Regular",
                 variants: [
-                    { name: "Regular", fontFamily: "Righteous", fontWeight: "normal", fontStyle: "normal" }
+                    { name: "Regular", fontFamily: "Poppins Regular", fontWeight: "400", fontStyle: "normal", url: "./fonts/Poppins-Regular.ttf" },
+                    { name: "Bold", fontFamily: "Poppins Bold", fontWeight: "700", fontStyle: "normal", url: "./fonts/Poppins-Bold.ttf" }
                 ]
             },
             {
-                name: "Special Elite",
-                category: "Máquina Escribir",
-                defaultVariant: "Vintage Type",
-                variants: [
-                    { name: "Vintage Type", fontFamily: "Special Elite", fontWeight: "normal", fontStyle: "normal" }
-                ]
-            },
-            {
-                name: "Oswald",
-                category: "Display Recta",
-                defaultVariant: "Bold",
-                variants: [
-                    { name: "Regular", fontFamily: "Oswald", fontWeight: "400", fontStyle: "normal" },
-                    { name: "Bold", fontFamily: "Oswald", fontWeight: "700", fontStyle: "normal" }
-                ]
-            },
-            {
-                name: "Anton",
-                category: "Poster Impact",
+                name: "TikTok Sans",
+                category: "Dinámica Sans",
                 defaultVariant: "Regular",
                 variants: [
-                    { name: "Regular", fontFamily: "Anton", fontWeight: "normal", fontStyle: "normal" }
+                    { name: "Regular", fontFamily: "TikTok Sans Regular", fontWeight: "400", fontStyle: "normal", url: "./fonts/TikTokSans-Regular.ttf" },
+                    { name: "Bold", fontFamily: "TikTok Sans Bold", fontWeight: "700", fontStyle: "normal", url: "./fonts/TikTokSans-Bold.ttf" }
+                ]
+            },
+            {
+                name: "The Bold Font",
+                category: "Brutalista Display",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "The Bold Font", fontWeight: "normal", fontStyle: "normal", url: "./fonts/TheBoldFont.ttf" }
+                ]
+            },
+            {
+                name: "Komika Axis",
+                category: "Fantasía / Cómic",
+                defaultVariant: "Regular",
+                variants: [
+                    { name: "Regular", fontFamily: "Komika Axis", fontWeight: "normal", fontStyle: "normal", url: "./fonts/KOMIKAX_.ttf" }
+                ]
+            },
+            {
+                name: "MXSQUAD Demo",
+                category: "Display Deportiva",
+                defaultVariant: "Demo Regular",
+                variants: [
+                    { name: "Demo Regular", fontFamily: "MXSQUAD Demo", fontWeight: "normal", fontStyle: "normal", url: "./fonts/MXSQUADDemo.ttf" }
                 ]
             }
         ];
 
         // Lista de archivos del servidor (para evitar duplicar los de Authority predefinidos)
         const FUENTES_PREDEFINIDAS = [
+            // Authority
             { name: "Authority Regular", filename: "authority-regular-iF670150cce3bf9.ttf" },
             { name: "Authority Rounded", filename: "Authority-Rounded-iF670150ccf296e.ttf" },
             { name: "Authority Rounded Italic", filename: "Authority-RoundedItalic-iF670150cd11171.ttf" },
             { name: "Authority Italic", filename: "Authority-Italic-iF670150ccd1ca7.ttf" },
             { name: "Authority Distressed", filename: "Authority-Distressed-iF670150cb7a9ae.ttf" },
-            { name: "Authority Distressed Italic", filename: "Authority-DistressedItalic-iF670150cc2de33.ttf" }
+            { name: "Authority Distressed Italic", filename: "Authority-DistressedItalic-iF670150cc2de33.ttf" },
+            // Lilita One
+            { name: "Lilita One", filename: "LilitaOne-Regular.ttf" },
+            // Montserrat
+            { name: "Montserrat Regular", filename: "Montserrat-Regular.ttf" },
+            { name: "Montserrat Bold", filename: "Montserrat-Bold.ttf" },
+            { name: "Montserrat Black", filename: "Montserrat-Black.ttf" },
+            // Bebas Neue
+            { name: "Bebas Neue", filename: "BebasNeue-Regular.ttf" },
+            // Rubik
+            { name: "Rubik Regular", filename: "Rubik-Regular.ttf" },
+            { name: "Rubik Bold", filename: "Rubik-Bold.ttf" },
+            // Poppins
+            { name: "Poppins Regular", filename: "Poppins-Regular.ttf" },
+            { name: "Poppins Bold", filename: "Poppins-Bold.ttf" },
+            // TikTok Sans
+            { name: "TikTok Sans Regular", filename: "TikTokSans-Regular.ttf" },
+            { name: "TikTok Sans Bold", filename: "TikTokSans-Bold.ttf" },
+            // The Bold Font
+            { name: "The Bold Font", filename: "TheBoldFont.ttf" },
+            // Komika Axis
+            { name: "Komika Axis", filename: "KOMIKAX_.ttf" },
+            // MXSQUAD
+            { name: "MXSQUAD Demo Regular", filename: "MXSQUADDemo.ttf" },
+            { name: "MXSQUAD Demo Otf", filename: "MXSQUADDemo.otf" }
         ];
 
         // Inicialización
@@ -1253,11 +1355,17 @@
         }
 
         // Aplica la variante elegida al estado y actualiza el canvas
-        function seleccionarVariante(variantIndex) {
+        async function seleccionarVariante(variantIndex) {
             editorState.activeVariantIndex = variantIndex;
             
             const family = FAMILIAS_FUENTES[editorState.activeFamilyIndex];
             const variant = family.variants[variantIndex];
+            
+            // Si la variante tiene url y no se ha registrado/cargado, registrarla ahora
+            if (variant.url && !loadedFonts.has(variant.fontFamily)) {
+                showToast("Cargando tipografía...", "info");
+                await registrarFuente(variant.fontFamily, variant.url);
+            }
             
             // Actualizar pills activos
             const pills = document.querySelectorAll('#variantsGrid .variant-pill');
@@ -1272,6 +1380,21 @@
             editorState.fontStyle = variant.fontStyle || 'normal';
             
             actualizarCanvas();
+        }
+
+        // Cambia el fondo visual del lienzo (sólo CSS, no afecta la exportación)
+        function setCanvasBackground(colorName) {
+            const canvas = document.getElementById('miCanvas');
+            canvas.classList.remove('bg-azul', 'bg-rojo', 'bg-verde', 'bg-amarillo', 'bg-transparente');
+            canvas.classList.add(`bg-${colorName}`);
+            
+            document.querySelectorAll('.preview-bg-btn').forEach(btn => {
+                if (btn.classList.contains(colorName)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
         }
 
         // Permite subir una fuente manual y la agrega como nueva familia

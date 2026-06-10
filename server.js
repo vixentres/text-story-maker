@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 
 const PORT = 3000;
-const FONTS_DIR = path.join(__dirname, 'authority-font-family');
+const FONTS_DIR = path.join(__dirname, 'fonts');
 const OUTPUT_DIR = path.join(__dirname, 'renders');
 
 // Asegurar que exista la carpeta de salida
